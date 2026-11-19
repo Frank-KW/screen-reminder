@@ -2,7 +2,8 @@
 # Build, sign, notarize and zip Screen Reminder for other Macs.
 #
 #   scripts/release.sh 1.0.0             real release (needs Developer ID + notary profile)
-#   scripts/release.sh 1.0.0 --dry-run   same build, ad-hoc signed, no Apple upload
+#   scripts/release.sh 1.0.0 --unsigned  same build, not signed by Apple (first open needs
+#                                        System Settings > Privacy & Security > Open Anyway)
 #
 # Env:
 #   NOTARY_PROFILE  keychain profile made with `xcrun notarytool store-credentials`
@@ -13,7 +14,7 @@ set -euo pipefail
 VERSION="${1:-}"
 MODE="${2:-}"
 if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-  echo "Usage: scripts/release.sh <version like 1.0.0> [--dry-run]" >&2
+  echo "Usage: scripts/release.sh <version like 1.0.0> [--unsigned]" >&2
   exit 2
 fi
 
@@ -23,10 +24,15 @@ OUT="$ROOT/dist"
 DERIVED="$OUT/DerivedData"
 APP_NAME="Screen Reminder"
 ZIP="$OUT/Screen-Reminder-$VERSION.zip"
+[[ "$MODE" == "--dry-run" ]] && MODE="--unsigned"
+if [[ -n "$MODE" && "$MODE" != "--unsigned" ]]; then
+  echo "Unknown option: $MODE" >&2
+  exit 2
+fi
 
-if [[ "$MODE" == "--dry-run" ]]; then
+if [[ "$MODE" == "--unsigned" ]]; then
   SIGN_ARGS=(CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM=)
-  echo "Dry run: ad-hoc signing, no notarization."
+  echo "Unsigned build: ad-hoc signing, no notarization."
 else
   IDENTITY_LINE="$(security find-identity -v -p codesigning | grep '"Developer ID Application' | head -1 || true)"
   if [[ -z "$IDENTITY_LINE" ]]; then
@@ -52,6 +58,8 @@ xcodebuild \
   -derivedDataPath "$DERIVED" \
   "${SIGN_ARGS[@]}" \
   ENABLE_HARDENED_RUNTIME=YES \
+  ARCHS="arm64 x86_64" \
+  ONLY_ACTIVE_ARCH=NO \
   MARKETING_VERSION="$VERSION" \
   CURRENT_PROJECT_VERSION="${BUILD_NUMBER:-1}" \
   clean build | grep -E "error:|warning: |BUILD" || true
@@ -61,7 +69,7 @@ APP="$DERIVED/Build/Products/Release/$APP_NAME.app"
 
 codesign --verify --deep --strict --verbose=2 "$APP"
 
-if [[ "$MODE" != "--dry-run" ]]; then
+if [[ "$MODE" != "--unsigned" ]]; then
   ditto -c -k --keepParent "$APP" "$ZIP"
   xcrun notarytool submit "$ZIP" --keychain-profile "$NOTARY_PROFILE" --wait
   xcrun stapler staple "$APP"
