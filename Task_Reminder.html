@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Full-Screen Task Reminder</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* ---------- UI 1 ---------- */
+    #ui-input {
+      padding: 40px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .field {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input {
+      padding: 8px;
+      font-size: 16px;
+      width: 220px;
+    }
+
+    button {
+      padding: 8px 14px;
+      font-size: 15px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+
+    /* Task list */
+    #task-list {
+      margin-top: 30px;
+    }
+
+    #task-list ul {
+      padding-left: 0;
+      list-style: none;
+    }
+
+    #task-list li {
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+    }
+
+    .delete-btn {
+      background: #ddd;
+      border: none;
+      padding: 4px 8px;
+      cursor: pointer;
+    }
+
+    /* ---------- UI 2 ---------- */
+    #ui-reminder {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: black;
+      overflow: hidden;
+    }
+
+    #reminder-text {
+      position: absolute;
+      color: #cfd8dc;
+      font-size: 160px;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    #go-back {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      padding: 8px 14px;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- UI 1 -->
+<div id="ui-input">
+  <h1>Task Reminder Setup</h1>
+
+  <div class="field">
+    <label>Task Title</label>
+    <input id="title" type="text" />
+  </div>
+
+  <div class="field">
+    <label>Start Time</label>
+    <input id="startTime" type="time" step="1" inputmode="none" />
+  </div>
+
+  <div class="field">
+    <label>End Time</label>
+    <input id="endTime" type="time" step="1" inputmode="none" />
+  </div>
+
+  <button id="addTask">Add New Task</button>
+  <button id="showReminder">Show Reminder</button>
+
+  <div id="task-list">
+    <h2>All Tasks</h2>
+    <ul id="task-items"></ul>
+  </div>
+</div>
+
+<!-- UI 2 -->
+<div id="ui-reminder" class="hidden">
+  <div id="reminder-text">Relax, have a nice day!</div>
+  <button id="go-back">Go Back</button>
+</div>
+
+<script>
+  const STORAGE_KEY = "tasks";
+
+  const uiInput = document.getElementById("ui-input");
+  const uiReminder = document.getElementById("ui-reminder");
+  const reminderText = document.getElementById("reminder-text");
+  const goBackBtn = document.getElementById("go-back");
+
+  const titleInput = document.getElementById("title");
+  const startInput = document.getElementById("startTime");
+  const endInput = document.getElementById("endTime");
+  const taskItems = document.getElementById("task-items");
+
+  const COLORS = [
+    "#cfd8dc", "#b0bec5", "#a5b4c8",
+    "#b2c2b9", "#c1b6a4", "#b8a8aa"
+  ];
+
+  function loadTasks() {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+  }
+
+  function saveTasks(tasks) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+  }
+
+  function timeToSeconds(t) {
+    const [h, m, s] = t.split(":").map(Number);
+    return h * 3600 + m * 60 + s;
+  }
+
+  function isTaskActive(task, nowSec) {
+    const start = timeToSeconds(task.startTime);
+    const end = timeToSeconds(task.endTime);
+    return start <= end
+      ? nowSec >= start && nowSec <= end
+      : nowSec >= start || nowSec <= end;
+  }
+
+  function getActiveTask(tasks) {
+    const now = new Date();
+    const nowSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+    const active = tasks.filter(t => isTaskActive(t, nowSec));
+
+    if (!active.length) return null;
+
+    active.sort((a, b) => {
+      const sA = timeToSeconds(a.startTime);
+      const sB = timeToSeconds(b.startTime);
+      return sB !== sA ? sB - sA : b.createdAt - a.createdAt;
+    });
+
+    return active[0];
+  }
+
+  function renderTaskList() {
+    const tasks = loadTasks();
+    taskItems.innerHTML = "";
+
+    tasks.forEach(task => {
+      const li = document.createElement("li");
+      li.textContent = `${task.title} (${task.startTime} → ${task.endTime})`;
+
+      const del = document.createElement("button");
+      del.textContent = "Delete";
+      del.className = "delete-btn";
+      del.onclick = () => {
+        saveTasks(tasks.filter(t => t.id !== task.id));
+        renderTaskList();
+      };
+
+      li.appendChild(del);
+      taskItems.appendChild(li);
+    });
+  }
+
+  function randomizeReminder() {
+    reminderText.style.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    reminderText.style.fontSize = 140 + Math.random() * 80 + "px";
+
+    const rect = reminderText.getBoundingClientRect();
+    const maxX = window.innerWidth - rect.width;
+    const maxY = window.innerHeight - rect.height;
+
+    reminderText.style.left = Math.max(0, Math.random() * maxX) + "px";
+    reminderText.style.top = Math.max(0, Math.random() * maxY) + "px";
+
+    goBackBtn.style.left = 20 + Math.random() * 20 + "px";
+    goBackBtn.style.bottom = 20 + Math.random() * 20 + "px";
+  }
+
+  document.getElementById("addTask").onclick = () => {
+    if (!titleInput.value || !startInput.value || !endInput.value) {
+      alert("Please fill all fields.");
+      return;
+    }
+
+    const tasks = loadTasks();
+    tasks.push({
+      id: crypto.randomUUID(),
+      title: titleInput.value.trim(),
+      startTime: startInput.value,
+      endTime: endInput.value,
+      createdAt: Date.now()
+    });
+
+    saveTasks(tasks);
+    titleInput.value = "";
+    startInput.value = "";
+    endInput.value = "";
+    renderTaskList();
+  };
+
+  document.getElementById("showReminder").onclick = () => {
+    uiInput.classList.add("hidden");
+    uiReminder.classList.remove("hidden");
+  };
+
+  document.getElementById("go-back").onclick = () => {
+    uiReminder.classList.add("hidden");
+    uiInput.classList.remove("hidden");
+  };
+
+  setInterval(() => {
+    if (uiReminder.classList.contains("hidden")) return;
+    const active = getActiveTask(loadTasks());
+    reminderText.textContent = active ? active.title : "Relax, have a nice day!";
+  }, 1000);
+
+  setInterval(() => {
+    if (!uiReminder.classList.contains("hidden")) {
+      randomizeReminder();
+    }
+  }, 10000);
+
+  renderTaskList();
+</script>
+
+</body>
+</html>
