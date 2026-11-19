@@ -105,6 +105,20 @@ final class TaskStore: ObservableObject {
         }
     }
 
+    /// Used by restore: throws away the current reminders and keeps these.
+    /// Old photo files stay on disk, so a safety backup can still bring them back.
+    @discardableResult
+    func replaceAll(with newTasks: [TaskItem]) -> Bool {
+        let previousTasks = tasks
+        tasks = newTasks
+        sortTasks()
+        guard save() else {
+            tasks = previousTasks
+            return false
+        }
+        return true
+    }
+
     func image(for task: TaskItem) -> NSImage? {
         guard let filename = task.imageFilename else { return nil }
         return imageStore.image(named: filename)

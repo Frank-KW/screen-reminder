@@ -39,6 +39,23 @@ final class TimeBlockSettings: ObservableObject {
         }
     }
 
+    /// Used by restore. Blocks missing from the backup keep their UK default.
+    func replaceAll(with stored: [String: TimeBlockRange]) {
+        var merged = TimeBlock.ukDefaultRanges
+        for block in TimeBlock.allCases {
+            if let range = stored[block.rawValue] {
+                merged[block] = range.normalized
+            }
+        }
+        ranges = merged
+        save()
+    }
+
+    /// The ranges keyed by name, the shape used on disk and in backups.
+    var storedRanges: [String: TimeBlockRange] {
+        Dictionary(uniqueKeysWithValues: ranges.map { ($0.key.rawValue, $0.value.normalized) })
+    }
+
     func restoreUKDefaults() {
         ranges = TimeBlock.ukDefaultRanges
         save()
@@ -60,9 +77,7 @@ final class TimeBlockSettings: ObservableObject {
     }
 
     private func save() {
-        let stored = StoredSettings(ranges: Dictionary(uniqueKeysWithValues: ranges.map {
-            ($0.key.rawValue, $0.value.normalized)
-        }))
+        let stored = StoredSettings(ranges: storedRanges)
         guard let data = try? encoder.encode(stored) else { return }
         defaults.set(data, forKey: storageKey)
     }

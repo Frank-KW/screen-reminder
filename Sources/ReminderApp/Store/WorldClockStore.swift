@@ -71,6 +71,16 @@ final class WorldClockStore: ObservableObject {
         save()
     }
 
+    /// Used by restore: throws away the current clocks and keeps these.
+    func replaceAll(with newClocks: [WorldClock], showsInDisplay newShows: Bool) {
+        clocks = Array(newClocks
+            .filter { $0.timeZone != nil }
+            .map { WorldClock(id: $0.id, cityName: Self.cleanName($0.cityName, timeZoneID: $0.timeZoneID), timeZoneID: $0.timeZoneID) }
+            .prefix(Self.maxClocks))
+        showsInDisplay = newShows
+        save()
+    }
+
     static func cleanName(_ name: String, timeZoneID: String) -> String {
         let collapsed = name
             .split(whereSeparator: \.isWhitespace)

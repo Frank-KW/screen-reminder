@@ -27,6 +27,14 @@
 		C1A0000000000000000000A4 /* WorldClockTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A0000000000000000000B4 /* WorldClockTests.swift */; };
 		C1A0000000000000000000A5 /* LegacyDataMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A0000000000000000000B5 /* LegacyDataMigration.swift */; };
 		C1A0000000000000000000A6 /* LegacyDataMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A0000000000000000000B6 /* LegacyDataMigrationTests.swift */; };
+		C1A0000000000000000000A7 /* EventItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A0000000000000000000B7 /* EventItem.swift */; };
+		C1A0000000000000000000A8 /* EventStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A0000000000000000000B8 /* EventStore.swift */; };
+		C1A0000000000000000000A9 /* EventNotifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A0000000000000000000B9 /* EventNotifier.swift */; };
+		C1A0000000000000000000AA /* Backup.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A0000000000000000000BA /* Backup.swift */; };
+		C1A0000000000000000000AB /* EventViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A0000000000000000000BB /* EventViews.swift */; };
+		C1A0000000000000000000AC /* BackupController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A0000000000000000000BC /* BackupController.swift */; };
+		C1A0000000000000000000AD /* EventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A0000000000000000000BD /* EventTests.swift */; };
+		C1A0000000000000000000AE /* BackupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A0000000000000000000BE /* BackupTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,6 +71,14 @@
 		C1A0000000000000000000B4 /* WorldClockTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderAppTests/WorldClockTests.swift; sourceTree = "<group>"; };
 		C1A0000000000000000000B5 /* LegacyDataMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderApp/Utilities/LegacyDataMigration.swift; sourceTree = "<group>"; };
 		C1A0000000000000000000B6 /* LegacyDataMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderAppTests/LegacyDataMigrationTests.swift; sourceTree = "<group>"; };
+		C1A0000000000000000000B7 /* EventItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderApp/Models/EventItem.swift; sourceTree = "<group>"; };
+		C1A0000000000000000000B8 /* EventStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderApp/Store/EventStore.swift; sourceTree = "<group>"; };
+		C1A0000000000000000000B9 /* EventNotifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderApp/Utilities/EventNotifier.swift; sourceTree = "<group>"; };
+		C1A0000000000000000000BA /* Backup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderApp/Utilities/Backup.swift; sourceTree = "<group>"; };
+		C1A0000000000000000000BB /* EventViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderApp/Views/EventViews.swift; sourceTree = "<group>"; };
+		C1A0000000000000000000BC /* BackupController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderApp/Views/BackupController.swift; sourceTree = "<group>"; };
+		C1A0000000000000000000BD /* EventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderAppTests/EventTests.swift; sourceTree = "<group>"; };
+		C1A0000000000000000000BE /* BackupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderAppTests/BackupTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +129,12 @@
 				C1A0000000000000000000B3 /* WorldClockViews.swift */,
 				C1A0000000000000000000B2 /* WorldClockStore.swift */,
 				C1A0000000000000000000B1 /* WorldClock.swift */,
+				C1A0000000000000000000B7 /* EventItem.swift */,
+				C1A0000000000000000000B8 /* EventStore.swift */,
+				C1A0000000000000000000B9 /* EventNotifier.swift */,
+				C1A0000000000000000000BA /* Backup.swift */,
+				C1A0000000000000000000BB /* EventViews.swift */,
+				C1A0000000000000000000BC /* BackupController.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -123,6 +145,8 @@
 				D22722B229284744A20A80FF /* TimeUtilsTests.swift */,
 				C1A0000000000000000000B6 /* LegacyDataMigrationTests.swift */,
 				C1A0000000000000000000B4 /* WorldClockTests.swift */,
+				C1A0000000000000000000BD /* EventTests.swift */,
+				C1A0000000000000000000BE /* BackupTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -238,6 +262,12 @@
 				C1A0000000000000000000A3 /* WorldClockViews.swift in Sources */,
 				C1A0000000000000000000A2 /* WorldClockStore.swift in Sources */,
 				C1A0000000000000000000A1 /* WorldClock.swift in Sources */,
+				C1A0000000000000000000A7 /* EventItem.swift in Sources */,
+				C1A0000000000000000000A8 /* EventStore.swift in Sources */,
+				C1A0000000000000000000A9 /* EventNotifier.swift in Sources */,
+				C1A0000000000000000000AA /* Backup.swift in Sources */,
+				C1A0000000000000000000AB /* EventViews.swift in Sources */,
+				C1A0000000000000000000AC /* BackupController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -248,6 +278,8 @@
 				19803D53EE3A4E00AD6E43BB /* TimeUtilsTests.swift in Sources */,
 				C1A0000000000000000000A6 /* LegacyDataMigrationTests.swift in Sources */,
 				C1A0000000000000000000A4 /* WorldClockTests.swift in Sources */,
+				C1A0000000000000000000AD /* EventTests.swift in Sources */,
+				C1A0000000000000000000AE /* BackupTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

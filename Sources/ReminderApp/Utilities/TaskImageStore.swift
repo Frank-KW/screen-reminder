@@ -100,6 +100,24 @@ final class TaskImageStore {
         return filename
     }
 
+    /// Raw bytes of a saved photo, for backups.
+    func imageData(named filename: String) -> Data? {
+        guard let url = fileURL(named: filename) else { return nil }
+        return try? Data(contentsOf: url)
+    }
+
+    /// Puts a photo from a backup back on disk. Refuses names that point outside the folder
+    /// and bytes that are not an image.
+    func restoreImage(_ data: Data, named filename: String) throws {
+        guard let url = fileURL(named: filename),
+              CGImageSourceCreateWithData(data as CFData, nil).flatMap({ CGImageSourceGetCount($0) > 0 ? $0 : nil }) != nil else {
+            throw TaskImageStoreError.invalidImage
+        }
+        try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+        try data.write(to: url, options: .atomic)
+        cache.removeObject(forKey: filename as NSString)
+    }
+
     func image(named filename: String) -> NSImage? {
         if let cached = cache.object(forKey: filename as NSString) {
             return cached

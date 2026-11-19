@@ -5,8 +5,13 @@ import UniformTypeIdentifiers
 struct ContentView: View {
     @EnvironmentObject private var timeBlockSettings: TimeBlockSettings
     @EnvironmentObject private var worldClockStore: WorldClockStore
-    @StateObject private var store = TaskStore()
+    @EnvironmentObject private var store: TaskStore
+    @EnvironmentObject private var eventStore: EventStore
     @State private var showsWorldClocks = false
+    @State private var showsEvents = false
+
+    let onExport: () -> Void
+    let onRestore: () -> Void
 
     @State private var title = ""
     @State private var selectedTimeBlock: TimeBlock = .morningWorkBlock
@@ -59,6 +64,21 @@ struct ContentView: View {
         .sheet(isPresented: $showsWorldClocks) {
             WorldClocksManagerView()
                 .environmentObject(worldClockStore)
+        }
+        .sheet(isPresented: $showsEvents) {
+            EventsManagerView(onExport: onExport, onRestore: onRestore)
+                .environmentObject(eventStore)
+        }
+        .alert(
+            eventStore.inAppAlerts.first?.title ?? "Event",
+            isPresented: Binding(
+                get: { !eventStore.inAppAlerts.isEmpty },
+                set: { if !$0 { eventStore.dismissInAppAlert() } }
+            )
+        ) {
+            Button("OK") {}
+        } message: {
+            Text(eventStore.inAppAlerts.first?.body ?? "")
         }
     }
 
@@ -195,6 +215,15 @@ struct ContentView: View {
                     }
 
                     Button {
+                        showsEvents = true
+                    } label: {
+                        Label(eventsButtonTitle(at: context.date), systemImage: "calendar")
+                    }
+                    .buttonStyle(.bordered)
+                    .keyboardShortcut("e", modifiers: [.command, .shift])
+                    .help("Add events with a date, time and alerts (Shift-Command-E)")
+
+                    Button {
                         showsWorldClocks = true
                     } label: {
                         Label(worldClockButtonTitle, systemImage: "globe")
@@ -268,6 +297,11 @@ struct ContentView: View {
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 300)
         }
+    }
+
+    private func eventsButtonTitle(at now: Date) -> String {
+        let count = eventStore.upcoming(at: now).count
+        return count == 0 ? "Events" : "Events (\(count))"
     }
 
     private var worldClockButtonTitle: String {
